@@ -1,1 +1,0 @@
-plot "result_exo6.txt"
