@@ -30,12 +30,6 @@ int* tri_insertion(float* tab , int size){
   }
 
 
-  // printf("after :\n");
-  // for (int i = 0; i < size; ++i)
-  // {
-  //   printf("%d",tab_order[i] );
-  // }
-
   return tab_order;
 }
 float* mkscore(Edge* list_edges,int size, int nb_edges, int t){
@@ -99,47 +93,57 @@ int get_max_core(int * core_tab,int size){
 
 
 
-void core_decomposition(int *tab_degree,Adjarray adjarray){
+void core_decomposition(int *tab_degree_renomme ,int nb_nodes, Adjarray adjarray,int*tab_renommage, int* tab_renomme){
 
-  int size = adjarray.n;
+
+  int nbNodes = adjarray.n;
   //copy a tab_degree
-  int *tab_degree_copy = malloc(size*sizeof(int));
-  for (int i = 0; i < size; ++i)
+  int *tab_degree_copy = malloc(nbNodes*sizeof(int));
+  for (int i = 0; i < nbNodes; ++i)
   {
-    tab_degree_copy[i] = tab_degree[i];
+    tab_degree_copy[i] = tab_degree_renomme[i];
   }
 
 
  
-  int nbNodes = adjarray.n;
+ 
   int *core_tab = malloc(nbNodes*sizeof(int));
   int *tab_order = malloc(nbNodes*sizeof(int));
   int c =0;
   while(nbNodes>0){
    
     
-    int v = get_minimumNode(tab_degree_copy,size);
+   
+    // Let v be a node with minimum degree in G
+    int i_v = get_minimumNode(tab_degree_copy,nb_nodes);
+     // printf("i_v = %d\n",i_v );
+    int v = tab_renomme[i_v];
 
-    if(tab_degree_copy[v]>c){
-      c = tab_degree_copy[v];
+    // printf("v = %d\n",v );
+    if(tab_degree_copy[i_v]>c){
+      c = tab_degree_copy[i_v];
     }
-    core_tab[v]=c;
+
+    // printf("c = %d\n",c );
+    core_tab[i_v]=c;
 
     //on supprime le node minimum dans le graphe
-    int index = adjarray.cd[v];
-    int d = tab_degree[v];
-    
+    int index = adjarray.cd[i_v];
+    int d = tab_degree_renomme[i_v];
 
     int i;
+    
     for(i=index;i<index+d;i++){
-      tab_degree_copy[adjarray.adj[i]]--;
+      int r_i = tab_renommage[adjarray.adj[i]];
+      tab_degree_copy[r_i]--;
 
     }  
-    tab_degree_copy[v]=INT_MAX;
+    tab_degree_copy[i_v]=INT_MAX;
     tab_order[nbNodes-1]=v;
     nbNodes--;
    
   }
+
 
   int max_core = get_max_core(core_tab,adjarray.n);
   printf("max core = %d\n",max_core );
@@ -164,16 +168,18 @@ bool existe_lien(Adjarray adjarray, int * tab_degree,int node1, int node2){
     return existe;
 
 }
-int get_size_densest_prefix(int *tab_degree,Adjarray adjarray,int *tab_order, int size){
+int get_size_densest_prefix(int *tab_degree_renomme,Adjarray adjarray,int *tab_order, int nb_nodes, int* tab_renommage){
 
  
-  double* tab_density = malloc(size*sizeof(double));
+  double* tab_density = malloc(nb_nodes*sizeof(double));
+  double* tab_edges_density = malloc(nb_nodes*sizeof(double));
   //quand sub-graph contient seulement un noeud (le premier noeud)
   int nbNodes =1;
   int nbliens = 0;
   tab_density[0]=(double)nbliens/nbNodes;//nbNodes==1
+  tab_edges_density[0]=0;//nbNodes==1
 
-  for(nbNodes=2; nbNodes<size+1;nbNodes++){
+  for(nbNodes=2; nbNodes<nb_nodes+1;nbNodes++){
 
     //node1: le noeud a ajouter
     int node1 = tab_order[nbNodes-1];
@@ -182,7 +188,7 @@ int get_size_densest_prefix(int *tab_degree,Adjarray adjarray,int *tab_order, in
 
       //node2: les noeuds existe deja dans sub-graphe
       int node2 = tab_order[i];
-      if(existe_lien(adjarray,tab_degree,node1,node2)){
+      if(existe_lien(adjarray,tab_degree_renomme,node1,node2,tab_renommage)){
         nbliens++;
       }
     }
@@ -190,21 +196,26 @@ int get_size_densest_prefix(int *tab_degree,Adjarray adjarray,int *tab_order, in
     //calculer density 
     double density = (double)nbliens/ nbNodes;
     tab_density[nbNodes-1]=density;
-  }
 
- 
+    // int nb_edges_max = nbNodes*(nbNodes-1)/2; 
+    // tab_edges_density[nbNodes-1]=(double) nbliens/nb_edges_max;
+
+  }
 
   //calculer max_density et la taille de sub-graphe correspondant
   double max_density = 0;
   int max_size = 1;
-  for (int i = 0; i < size; i++)
+  for (int i = 0; i < nb_nodes; i++)
   {
     if(tab_density[i]>max_density){
       max_density = tab_density[i];
       max_size = i+1;
     }
   }
+
   printf("max_density = %f\n", max_density);
+
+  // printf("edges_density = %f\n",max_edge_density );
   return max_size;
 
 
@@ -223,19 +234,26 @@ int main(){
 
   int nb_edges = getNbEdges(filename);
 
-  printf("the number of edges is %d\n",nb_edges );
+  // printf("the number of edges is %d\n",nb_edges );
   Edge* list_edges = getListEdges(filename, nb_edges);
 
 
   int *tab_degree = get_tab_degree(filename,max_node+1);
 
-  Adjarray adjarray = get_tab_adjacent(max_node,filename,nbNodes,nb_edges,
-    tab_degree, tab_renommage,tab_renomme);
 
-  int somme = get_somme_degree(tab_degree,max_node+1);
+  int * tab_degree_renomme =get_tab_degree_renomme( tab_degree,  nbNodes,  max_node,tab_renomme);
+
+
+  free(tab_degree);
   
-  core_decomposition(tab_degree,adjarray);
+  printf("fin de lire tab_degree\n");
+  Adjarray adjarray = get_tab_adjacent(filename,  nbNodes,nb_edges,tab_degree_renomme,tab_renommage);
+  printf("fin de lire tab_adjarray\n");
 
+
+ 
+  core_decomposition(tab_degree_renomme,nbNodes,adjarray, tab_renommage,tab_renomme);
+ 
 
 
   int t =100;

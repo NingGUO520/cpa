@@ -10,7 +10,7 @@ do
 			if ($1 > $2) {
 				printf("%d ",$2); 
 				printf("%d\n", $1);
-				}else {
+				}else if($1 < $2) {
 				printf("%d ",$1); 
 				printf("%d\n", $2);
 			}

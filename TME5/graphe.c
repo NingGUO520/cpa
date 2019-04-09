@@ -3,15 +3,12 @@
 #include "graphe.h"
 #define TAILLE 256
 
-int getNbNodes(const char* filename){
-
-  int max = get_max_node(filename);
-  int* tab = malloc((max+1)*sizeof(int));
-
+int getNbNodes(const char* filename, int max_node){
+  int* tab = malloc((max_node+1)*sizeof(int));
   FILE* file = fopen(filename,"r");
   char buf[TAILLE];
   while(fgets(buf,TAILLE,file)!=NULL){
-    if(buf[0]!='#'){
+    if(buf[0]!='#' && buf[0]!='\n'){
       int a,b;
       sscanf(buf,"%d %d\n",&a,&b);
       tab[a]=1;
@@ -20,13 +17,14 @@ int getNbNodes(const char* filename){
   }
 
   int nbNodes = 0;
-  for (int i = 0; i < max+1; ++i)
+  for (int i = 0; i < max_node+1; ++i)
   {
     if(tab[i]==1){
       nbNodes++;
     }
   }
   return nbNodes;
+
 }
 
 int* get_tab_renomme(const char* filename, int nbNodes){
@@ -37,7 +35,7 @@ int* get_tab_renomme(const char* filename, int nbNodes){
   FILE* file = fopen(filename,"r");
   char buf[TAILLE];
   while(fgets(buf,TAILLE,file)!=NULL){
-    if(buf[0]!='#'){
+    if(buf[0]!='#' && buf[0]!='\n'){
       int a,b;
       sscanf(buf,"%d %d\n",&a,&b);
       tab[a]=1;
@@ -65,7 +63,7 @@ int get_max_node(const char* filename){
   int max = 0;
   char buf[TAILLE];
   while(fgets(buf,TAILLE,file)!=NULL){
-    if(buf[0]!='#'){
+    if(buf[0]!='#' && buf[0]!='\n'){
     int a,b;
     sscanf(buf,"%d %d\n",&a,&b);
     if(a>max) max = a;
@@ -83,7 +81,7 @@ int* get_tab_renommage(const char* filename,int max_node){
   FILE* file = fopen(filename,"r");
   char buf[TAILLE];
   while(fgets(buf,TAILLE,file)!=NULL){
-    if(buf[0]!='#'){
+    if(buf[0]!='#' && buf[0]!='\n'){
       int a,b;
       sscanf(buf,"%d %d\n",&a,&b);
       tab[a]=1;
@@ -108,31 +106,29 @@ int* get_tab_renommage(const char* filename,int max_node){
 
 
 int getNbEdges(const char* filename){
-  FILE* file = fopen(filename,"r");
+	FILE* file = fopen(filename,"r");
 
-    int nbLiens = 0;
-    char buf[TAILLE];
-    while(fgets(buf,TAILLE,file)!=NULL){
-     if(buf[0]!='#'){
-      int a,b;
-      sscanf(buf,"%d %d\n",&a,&b);   
-      nbLiens++;
-      }
-    }
+	  int nbLiens = 0;
+	  char buf[TAILLE];
+	  while(fgets(buf,TAILLE,file)!=NULL){
+    if(buf[0]!='#' && buf[0]!='\n'){
+	    int a,b;
+	    sscanf(buf,"%d %d\n",&a,&b);	 
+	    nbLiens++;
+	    }
+	  }
 
   return nbLiens;
 }
-int* get_tab_degree_renomme(int * tab_degrees, int nbNodes, int size){
+int* get_tab_degree_renomme(int * tab_degrees, int nbNodes, int max_node, int* tab_renomme){
   int* tab_degree_renomme = malloc(nbNodes*sizeof(int));
-  int j=0;
-  for (int i = 0; i < size; ++i)
-  {
-    if(tab_degrees[i]>0){
-      tab_degree_renomme[j]=tab_degrees[i];
-      j++;
-    }
-  }
+ 
 
+  for (int i = 0; i < nbNodes; ++i)
+  {
+    int node = tab_renomme[i];
+    tab_degree_renomme[i] = tab_degrees[node];
+  }
   return tab_degree_renomme;
 }
 
@@ -147,7 +143,7 @@ int* get_tab_degree(const char* filename, int size){
   }
   char buf[TAILLE];
   while(fgets(buf,TAILLE,file)!=NULL){
-    if(buf[0]!='#'){
+    if(buf[0]!='#' && buf[0]!='\n'){
       int a,b;
       sscanf(buf,"%d %d\n",&a,&b);
       if(a!=b){
@@ -161,6 +157,7 @@ int* get_tab_degree(const char* filename, int size){
   return tab_degrees;
 }
 int get_somme_degree(int *tab_degree, int size){
+  
   int somme = 0;
   int i;
   for(i=0;i<size;i++){
@@ -169,8 +166,8 @@ int get_somme_degree(int *tab_degree, int size){
   return somme;
 }
 
-Adjarray get_tab_adjacent(int max_node,const char* filename, int nbNodes, int nb_edges,int *tab_degree, int* tab_renommage,int* tab_renomme){
-  int somme_degree = get_somme_degree(tab_degree,max_node+1);
+Adjarray get_tab_adjacent(const char* filename, int nbNodes, int nb_edges,int *tab_degree_renomme, int* tab_renommage){
+  int somme_degree = get_somme_degree(tab_degree_renomme,nbNodes);
   Adjarray adjarray;
   adjarray.n = nbNodes;
   adjarray.m = nb_edges;
@@ -188,8 +185,8 @@ Adjarray get_tab_adjacent(int max_node,const char* filename, int nbNodes, int nb
   // remplir le tableau cd
   int acc = 0;
   for(i = 0 ;i < nbNodes;i++){
-    int i_a = tab_renomme[i];
-    acc = acc + tab_degree[i_a];
+   
+    acc = acc + tab_degree_renomme[i];
     cd[i+1] = acc;
   }
 
@@ -198,17 +195,16 @@ Adjarray get_tab_adjacent(int max_node,const char* filename, int nbNodes, int nb
   FILE* file = fopen(filename,"r");
   char buf[TAILLE];
   while(fgets(buf,TAILLE,file)!=NULL){
-    if(buf[0]!='#'){
+    if(buf[0]!='#' && buf[0]!='\n'){
       int a,b;
       sscanf(buf,"%d %d\n",&a,&b);
      
       if(a!=b){
         int offset = 0;
-        int i = tab_renommage[a];
-        int index = cd[i];
+        int i_a = tab_renommage[a];
+        int index = cd[i_a];
         while(adj[index+offset]!=-1){
           
-       
           offset++;
         }
        
@@ -236,7 +232,7 @@ void generate_matrix(const char* filename,int n, int matrix[n][n]){
 
     char buf[TAILLE];
     while(fgets(buf,TAILLE,file)!=NULL){
-      if(buf[0]!='#'){
+    if(buf[0]!='#' && buf[0]!='\n'){
 
         int a,b;
         sscanf(buf,"%d %d\n",&a,&b);
@@ -244,5 +240,26 @@ void generate_matrix(const char* filename,int n, int matrix[n][n]){
         matrix[b][a]=1; 
       }
     }
+
+}
+Edge* getListEdges(const char* filename, int n){
+  Edge* list_edges = malloc(n*sizeof(Edge)) ;
+  FILE* file = fopen(filename,"r");
+
+    int i = 0;
+    char buf[TAILLE];
+    while(fgets(buf,TAILLE,file)!=NULL){
+    if(buf[0]!='#' && buf[0]!='\n'){
+
+        Edge edge; 
+        int a,b;
+        sscanf(buf,"%d %d\n",&a,&b);
+        edge.p1 = a;
+        edge.p2 = b;
+        list_edges[i]=edge;
+        i++;
+    }
+    }
+  return list_edges;
 
 }

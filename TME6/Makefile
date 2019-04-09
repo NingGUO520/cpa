@@ -1,4 +1,4 @@
-all: exo1 clean
+all: exo1 exo2 exo3 clean
 
 
 exo3:graphe.o  exo3.c
