@@ -54,9 +54,9 @@ void writeFilePlot(int *tab_degree,int* tab_core,int size){
 
   }
 }
-void core_decomposition(int *tab_degree,Adjarray adjarray){
+void core_decomposition(int *tab_degree,Adjarray adjarray, int max_node, int* tab_renommage){
 
-  int size = adjarray.n;
+  int size = max_node+1;
   //copy a tab_degree
   int *tab_degree_copy = malloc(size*sizeof(int));
   for (int i = 0; i < size; ++i)
@@ -74,14 +74,17 @@ void core_decomposition(int *tab_degree,Adjarray adjarray){
    
     
     int v = get_minimumNode(tab_degree_copy,size);
+    int i_v = tab_renommage[v];
 
     if(tab_degree_copy[v]>c){
       c = tab_degree_copy[v];
     }
-    core_tab[v]=c;
+
+    
+    core_tab[i_v]=c;
 
     //on supprime le node minimum dans le graphe
-    int index = adjarray.cd[v];
+    int index = adjarray.cd[i_v];
     int d = tab_degree[v];
     
 
@@ -104,16 +107,23 @@ int main(){
   // static const char filename[] = "data/exemple.txt";
 
   static const char filename[] = "scholar/net.txt";
-  int nbNodes = get_max_node(filename)+1;
+  
+  int max_node  = get_max_node(filename);
+  int nbNodes = getNbNodes(filename);
+  
+  int* tab_renommage = get_tab_renommage(filename, max_node);
+  int* tab_renomme = get_tab_renomme(filename,  nbNodes);
+
+  printf("nbNodes = %d\n",nbNodes );
   int nb_edges = getNbEdges(filename);
 
-  int *tab_degree = get_tab_degree(filename,nbNodes);
+  int *tab_degree = get_tab_degree(filename,max_node+1);
 
-  Adjarray adjarray = get_tab_adjacent(filename,nbNodes,nb_edges,tab_degree);
-  int somme = get_somme_degree(tab_degree,nbNodes);
-
-  core_decomposition(tab_degree,adjarray);
+  printf("fin de lire tab_degree\n");
+  Adjarray adjarray = get_tab_adjacent(max_node,filename,nbNodes,nb_edges,
+    tab_degree, tab_renommage,tab_renomme);
+  printf("fin de lire tab_adjarray\n");
+  core_decomposition(tab_degree,adjarray,max_node, tab_renommage);
  
-
 
 }

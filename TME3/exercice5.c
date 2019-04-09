@@ -9,9 +9,34 @@
 #define LJ "graphs_cleaned/com-lj.ungraph.txt"
 
 
-void calculQuantity(const char* filename, int size){
+int* read_tab_degree(int size){
+  int* tab_degrees = malloc(size* sizeof(int));
 
-  int* tab_degrees = get_tab_degree(filename,size);
+  printf("size  = %d\n",size );
+
+  FILE* file = fopen("exercice4.txt","r");
+
+  printf("lire le fichier \n");
+  char buf[TAILLE];
+  while(fgets(buf,TAILLE,file)!=NULL){
+    if(buf[0]!='#'){
+      int n,d;
+      sscanf(buf,"%d %d\n",&n,&d);
+      tab_degrees[n]=d;
+           
+
+
+    }
+  }
+  return tab_degrees;
+
+}
+void calculQuantity(const char* filename, int size){
+  int* tab_degrees =  get_tab_degree(filename,size);
+
+  int s = get_somme_degree(tab_degrees,size);
+  printf("somme = %d\n",s );
+  // int* tab_degrees = read_tab_degree(size);
   FILE* file = fopen(filename,"r");
 
   uint64_t quantity = 0;
@@ -34,6 +59,8 @@ void exercice5(const char* filename){
   float temps;
   clock_t t1, t2;
  
+  int nblien = getNbEdges(filename);
+  printf("nblien = %d\n",nblien );
   int size = get_max_node(filename)+1;
   t1 = clock();
   calculQuantity(filename,size);

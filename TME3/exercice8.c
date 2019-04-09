@@ -68,15 +68,15 @@ int main(){
 	int nbLiens = getNbEdges(filename);
 	int *tab_degree = get_tab_degree(filename,nbNodes);
 
- 	Adjarray adjarray = get_tab_adjacent(filename,nbNodes,nbLiens,tab_degree);
+ // 	Adjarray adjarray = get_tab_adjacent(filename,nbNodes,nbLiens,tab_degree);
 
 
- 	int * mark = malloc(nbNodes * sizeof(int));
-	int diameter = getMaxDepth(mark,0,adjarray,tab_degree,0);
-	printf("diameter = %d\n",diameter);
+ // 	int * mark = malloc(nbNodes * sizeof(int));
+	// int diameter = getMaxDepth(mark,0,adjarray,tab_degree,0);
+	// printf("diameter = %d\n",diameter);
 
-	int component_size = get_component_size(0,nbNodes, adjarray,tab_degree);
-	printf("component_size = %d\n", component_size);
+	// int component_size = get_component_size(0,nbNodes, adjarray,tab_degree);
+	// printf("component_size = %d\n", component_size);
 
 
 

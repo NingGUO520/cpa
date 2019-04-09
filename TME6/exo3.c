@@ -213,17 +213,26 @@ int main(){
   // static const char filename[] = "data/exemple2.txt";
 
   static const char filename[] = "graphs_cleaned/email-Eu-core.txt";
-  int nbNodes = get_max_node(filename)+1;
+
+  int max_node  = get_max_node(filename);
+  int nbNodes = getNbNodes(filename);
+  
+  int* tab_renommage = get_tab_renommage(filename, max_node);
+  int* tab_renomme = get_tab_renomme(filename,  nbNodes);
+
+
   int nb_edges = getNbEdges(filename);
 
   printf("the number of edges is %d\n",nb_edges );
   Edge* list_edges = getListEdges(filename, nb_edges);
 
 
-  int *tab_degree = get_tab_degree(filename,nbNodes);
+  int *tab_degree = get_tab_degree(filename,max_node+1);
 
-  Adjarray adjarray = get_tab_adjacent(filename,nbNodes,nb_edges,tab_degree);
-  int somme = get_somme_degree(tab_degree,nbNodes);
+  Adjarray adjarray = get_tab_adjacent(max_node,filename,nbNodes,nb_edges,
+    tab_degree, tab_renommage,tab_renomme);
+
+  int somme = get_somme_degree(tab_degree,max_node+1);
   
   core_decomposition(tab_degree,adjarray);
 

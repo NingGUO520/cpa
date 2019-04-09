@@ -13,7 +13,7 @@ void write_tab_degree(int* tab_degree, int size,const char* filename){
 
   /*Write the node-degree dans un fichier*/
   FILE * fichier = NULL;
-  fichier = fopen("result_exo4_email.txt","w");
+  fichier = fopen("result_exo4_amazon.txt","w");
   if(fichier!=NULL){
     int i;
     fprintf(fichier,"#node    degree\n");
@@ -39,7 +39,7 @@ void exercice4(const char* filename){
 int main(){
 
  
-  exercice4(EMAIL);
+  exercice4(AMAZON);
 
   return 0;
 

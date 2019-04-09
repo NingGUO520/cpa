@@ -6,23 +6,20 @@
 
 int* get_table_out_degree(const char* filename,int size, int* tab_renommage){
   int* tabOutDegree = malloc(size*sizeof(int));
-  for (int i = 0; i < size; ++i)
-  {
-    tabOutDegree[i]=0;
-  }
+  
 
-  // FILE* file = fopen(filename,"r");
+  FILE* file = fopen(filename,"r");
 
-  // char buf[TAILLE];
-  // while(fgets(buf,TAILLE,file)!=NULL){
-  //   if(buf[0]!='#'){
-  //     int a,b;
-  //     sscanf(buf,"%d %d\n",&a,&b);
-  //     int i_a = tab_renommage[a];
-  //     tabOutDegree[i_a]++;
+  char buf[TAILLE];
+  while(fgets(buf,TAILLE,file)!=NULL){
+    if(buf[0]!='#'){
+      int a,b;
+      sscanf(buf,"%d %d\n",&a,&b);
+      int i_a = tab_renommage[a];
+      tabOutDegree[i_a]++;
       
-  //   }
-  // }
+    }
+  }
 
   return tabOutDegree;
 
@@ -121,41 +118,12 @@ int main(){
 
   // static const char filename[] = "data/exemple.txt";
   static const char filename[] = "data/alr21--dirLinks--enwiki-20071018.txt";
-  int size = getNbNodes(filename);
-
-  int* tab_nodes = malloc(size*sizeof(int));
-  //Initialiser tab_nodes 
-  for (int i = 0; i < size; ++i)
-  {
-    tab_nodes[i]=0;
-  }
+  int size = get_max_node(filename)+1;
 
 
-  remplirTab(filename,tab_nodes);
-
-  int nb_nodes = get_number_node(tab_nodes,size);
-
-  printf("the number of node is %d\n",nb_nodes );
   
-  // int* tab_renommage = malloc(size* sizeof(int));
-  // for (int i = 0; i < size; ++i)
-  // {
-  //   tab_renommage[i]=0;
-  // }
-
-  int * nodes = malloc(nb_nodes*sizeof(int));
-
-  // remplir nodes
-  int j = 0;
-  for (int i = 0; i < size; ++i)
-  {
-    if(tab_nodes[i]==1){
-      tab_renommage[i]=j;
-      j++;
-    }
-  }
-  
-  // free(tab_nodes);
+  int* tab_renommage = get_tab_renommage(filename,size);
+ 
   
   // int *tabOutDegree = get_table_out_degree(filename,nb_nodes,tab_renommage);
   // float* p = pageRank(filename,nb_nodes,tabOutDegree ,tab_renommage, 0.15);
