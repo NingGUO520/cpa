@@ -7,7 +7,7 @@ G.add_nodes_from(range(400))
 f = open("graphe.txt","w+")
 
 p = 0.9
-q = 0.01
+q = 0.1
 for i in range(400):
 	for j in range(400):
 		if(i//100==j//100):

@@ -16,12 +16,12 @@ def set_label(node, voisins, labels):
 
 	# print("labels[node]=",labels[node])
 
-	max = 0
-	max_label = d.values()[0]
-	for k,v in d.items():
-		if v>max:
-			max = v
-			max_label = k
+	r = random.randint(0,len(d)-1)
+	max_label ,max_number = list(d.items())[r]
+	for label , number in d.items():
+		if number >max_number:
+			max_number = number
+			max_label = label
 
 	labels[node] = max_label
 
@@ -47,8 +47,8 @@ def plot_graph(graph, labels=None):
 
     pos = nx.spring_layout(graph)  # positions for all nodes
 
-    color = ['green', 'blue', 'red', 'yellow', 'orange', 'magenta',
-             'cyan', 'chocolate', 'pink' ]
+    color = [ 'blue', 'red', 'yellow', 'orange', 'magenta',
+             'cyan', 'chocolate', 'pink','green' ]
 
     i = 0
     for k, v in dict_community.items():
@@ -66,19 +66,48 @@ def plot_graph(graph, labels=None):
     
     nx.draw_networkx_edges(graph, pos, width=1.0, alpha=0.5)
     
-   #  # Pour avoir les labels sur les node du plot mais c'est moins visible
-   # # dict_labels = {}
-   # dict_labels = {node: node for node, label in labels.items()}
-
-   # nx.draw_networkx_labels(graph, pos)
-
+   #
     plt.axis('off')
-    plt.savefig("comunity_youtube.png")  # save as png
+
+    # sauvegarder
+    plt.savefig("comunity_youtube.png")  
     # nx.draw(graph)
     plt.show()
 
+def verifier_fin(graphe,nodes,labels):
+
+	fin = True
+	for node in nodes:
+		# check if the node has the label of highest frequency among itsneighbours.
+		voisins = nx.neighbors(graphe, node)
+
+		l_labels =[]
+		for v in voisins:
+			l_labels.append(labels[v])
+
+		d = {x:l_labels.count(x) for x in l_labels}
+
+		r = random.randint(0,len(d)-1)
+		max_label ,max_number = list(d.items())[r]
+
+		for label , number in d.items():
+			if number >max_number:
+				max_number = number
+				max_label = label
+
+		if not labels[node] == max_label :
+			fin = False
+		
+
+	return fin 
+def LabelPropagation(){
+	
+
+
+}
 if __name__ == "__main__":
 	# filename = "graphe.txt"
+	# filename = "data/exemple.txt"
 	filename = "data/com-youtube.ungraph.txt"
 	graphe = load_graph(filename)
 	nodes = list(graphe.nodes())
@@ -87,10 +116,10 @@ if __name__ == "__main__":
 	# Step 1:give a unique label to each node in the network
 	labels = {node: node for node in nodes}
 
-	nb_label = len(set(labels.values()))
 	fin = False
-	while not fin:
+	while not fin :
 
+		# print("labels : ",labels)
 		# Step 2: Arrange the nodes in the network in a random order
 		random.shuffle(nodes)
 
@@ -101,15 +130,23 @@ if __name__ == "__main__":
 			voisins = nx.neighbors(graphe, node)
 			set_label(node, voisins ,labels)
 
-
 		# Step 4:go to 2 as long as there exists a node with a labelthat 
 		# does not have the highest frequency among itsneighbours.
-		number_label_courrant = len(set(labels.values()))
+
+		if verifier_fin(graphe,nodes,labels):
+			fin = True
+
 		# print("the number of labels " ,number_label_courrant)
 
-		if number_label_courrant == nb_label:
-			fin = True
-		else:
-			nb_label = number_label_courrant
+		
+	#the numbers of communities obtained
+	set_labels = set(labels.values())
+	l_labels = list(labels.values())
+	nb_communities = len(set_labels)
+	print("the numbers of communities: ", nb_communities)
+	
+	size_community = {x:l_labels.count(x) for x in l_labels}
+	print(size_community)
+
 
 	plot_graph(graphe, labels)
