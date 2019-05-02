@@ -100,21 +100,9 @@ def verifier_fin(graphe,nodes,labels):
 		
 
 	return fin 
-def LabelPropagation(){
+def LabelPropagation(graphe, nodes,labels):
+
 	
-
-
-}
-if __name__ == "__main__":
-	# filename = "graphe.txt"
-	# filename = "data/exemple.txt"
-	filename = "data/com-youtube.ungraph.txt"
-	graphe = load_graph(filename)
-	nodes = list(graphe.nodes())
-	edges = list(nx.edges(graphe))
-
-	# Step 1:give a unique label to each node in the network
-	labels = {node: node for node in nodes}
 
 	fin = False
 	while not fin :
@@ -136,7 +124,23 @@ if __name__ == "__main__":
 		if verifier_fin(graphe,nodes,labels):
 			fin = True
 
-		# print("the number of labels " ,number_label_courrant)
+	return labels
+
+
+if __name__ == "__main__":
+	filename = "graphe.txt"
+	# filename = "data/exemple.txt"
+	# filename = "data/com-youtube.ungraph.txt"
+	graphe = load_graph(filename)
+	nodes = list(graphe.nodes())
+	edges = list(nx.edges(graphe))
+
+	# Step 1:give a unique label to each node in the network
+	labels = {node: node for node in nodes}
+
+	for i in range(0,3):
+		
+		labels = LabelPropagation(graphe, nodes,labels)	
 
 		
 	#the numbers of communities obtained
